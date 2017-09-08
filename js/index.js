@@ -4,18 +4,12 @@ let width = window.innerWidth*.85-margin.left-margin.right,
     height = 700-margin.top-margin.bottom;
 
 let dopingColor=["#f9a83e","#93ffff"]
-let dateFormat = d3.timeParse("%Y-%m-%d")//initial parse to d3
-let formatTime = d3.timeFormat("%B %Y");//parse time out from d3 for toolTip
-let axistFormatTime = d3.timeFormat("%Y");//parse time out from d3 for xaxis
-let gdpFormat=d3.format("$");//format for toolTip
 
 let x = d3.scaleLinear()//x axis scale for d3 interpretation
     .range([width,0]);
 let y = d3.scaleLinear()//y axis scale for d3 interpretation
     .range([0,height]);
-let x2 = d3.scaleLinear()//scale used only for x axis display purposes
-    .domain([0, 200])
-    .range([width,0]);
+
 let xAxis = d3.axisBottom(x)//xaxis display properties
 let yAxis = d3.axisLeft(y)//yaxis display properties
             .tickValues([1, 5, 10, 15, 20, 25, 30,35])
@@ -27,7 +21,8 @@ let toolTipDiv = d3.select("body").append("div")//toolTip div definition, defini
             .style("color", "darkgreen")
             .style("background-color", "white")
             .style("font-size", "18px")
-            .style("border-radius", "3px");
+            .style("border-radius", "3px")
+            .style("visibility", "hidden");
 
 let chart = d3.select(".chart")//main chart definition
     .attr("width", width + margin.left + margin.right)//margins added for axis
@@ -37,9 +32,7 @@ let chart = d3.select(".chart")//main chart definition
 
 d3.json(url,function(error,doperData){//use d3's own json capabilites to get data
   if (error) throw error;
-  //resturnture data in a format d3 can understand, object{x,y} per data point
-
-
+  //restructure data to make it easier to extract needed info
   let transposedDoper = doperData.map(function(d){
     let val={}
     val.timeDiff = d.Seconds-2210
@@ -55,11 +48,6 @@ d3.json(url,function(error,doperData){//use d3's own json capabilites to get dat
 
   x.domain(d3.extent(transposedDoper, function(d) { return d.timeDiff; })).nice();
   y.domain(d3.extent(transposedDoper, function(d) { return d.rank; })).nice();
-  //set domains for x an y scales per tutorial
-  //x.domain(transposedDoper.map(function(d) { return d.timeDiff; }));
-  //y.domain(transposedDoper.map(function(d) { return d.rank; }));
-
-
 
   let scatter = chart.selectAll("g")//d3 selects "future" g elements to draw on
     .data(transposedDoper)
@@ -79,10 +67,10 @@ d3.json(url,function(error,doperData){//use d3's own json capabilites to get dat
        toolTipDiv.style("visibility", "hidden");
        });
 
-  let bNames = chart.selectAll("g")
+  let bNames = chart.selectAll("g")//plots names on chart
     .data(transposedDoper)
     .enter().append("text")
-    .attr("x",function(d,i) {return x(d.timeDiff)+10})
+    .attr("x",function(d,i) {return x(d.timeDiff)+10})//offset slightly not to obscure circles
     .attr("y", function(d,i) {return y(d.rank)+4;})
     .attr("text-anchor", "right")
     .style("font-size", "10px")
@@ -90,24 +78,24 @@ d3.json(url,function(error,doperData){//use d3's own json capabilites to get dat
     .text(function(d,i) {return d.name})
 
   //legends below
-  chart.append("circle")
+  chart.append("circle")//add legend Circle
     .attr("r",6)
     .attr("cx",width/1.2)
     .attr("cy", height/2)
     .attr("fill", dopingColor[0])
-  chart.append("text")//add title
+  chart.append("text")//add legend text
         .attr("x", width/1.18)
         .attr("y", height/1.97)
         .attr("text-anchor", "right")
         .style("font-size", "16px")
         .style("fill", "white")
         .text("Riders with doping allegations")
-  chart.append("circle")
+  chart.append("circle")//add legend Circle
     .attr("r",6)
     .attr("cx",width/1.2)
     .attr("cy", height/1.8)
     .attr("fill", dopingColor[1])
-  chart.append("text")//add title
+  chart.append("text")//add legend text
         .attr("x", width/1.18)
         .attr("y", height/1.77)
         .attr("text-anchor", "right")
@@ -115,7 +103,7 @@ d3.json(url,function(error,doperData){//use d3's own json capabilites to get dat
         .style("fill", "white")
         .text("No doping allegations")
 
-
+  //Add axes
   chart.append("g")//add xaxis
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height*1.05 + ")")
