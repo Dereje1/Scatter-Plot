@@ -3,7 +3,7 @@ const margin = {top: 20, right: 100, bottom: 50, left: 75}
 let width = window.innerWidth*.85-margin.left-margin.right,
     height = 700-margin.top-margin.bottom;
 
-let dopingColor=["#f9a83e","#93ffff"]
+let dopingColor=["#FF0000","#FFFF00"]
 
 let x = d3.scaleLinear()//x axis scale for d3 interpretation
     .range([width,0]);
